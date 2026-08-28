@@ -10,6 +10,7 @@
     "start": "electron .",
     "dist": "electron-builder",
     "dist:win": "electron-builder --win nsis",
+    "dist:win:store": "electron-builder --win appx",
     "dist:mac": "electron-builder --mac",
     "dist:linux": "electron-builder --linux",
     "pack": "electron-builder --dir"
@@ -55,6 +56,14 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "NeonModoro"
+    },
+    "appx": {
+      "applicationId": "NeonModoro",
+      "identityName": "PLACEHOLDER_IDENTITY_NAME",
+      "publisher": "PLACEHOLDER_PUBLISHER_ID",
+      "publisherDisplayName": "PLACEHOLDER_PUBLISHER_DISPLAY_NAME",
+      "displayName": "NeonModoro",
+      "backgroundColor": "transparent"
     },
     "mac": {
       "target": [

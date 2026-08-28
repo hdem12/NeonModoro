@@ -87,6 +87,17 @@ Or, on Debian/Ubuntu-based distros, install the `.deb` with your package manager
 
 NeonModoro is free, open source, and has no paid tier — so it doesn't carry a purchased code-signing certificate (Windows) or an Apple Developer Program membership (macOS notarization), both of which cost money on an ongoing/per-release basis. That's a deliberate tradeoff: the warnings above are real but one-time and well understood by most users; paying to suppress them isn't a good use of a volunteer project's resources. If that ever changes (e.g. a sponsor covers it), this section will be updated.
 
+### Microsoft Store build
+
+`package.json`'s `build.appx` block and the `dist:win:store` script (`electron-builder --win appx`) produce a Store-ready `.appx`/`.msix` alongside the regular NSIS installer, without changing what `dist`/`dist:win` build by default. Before it can succeed, the three `PLACEHOLDER_*` identity fields in `build.appx` (`identityName`, `publisher`, `publisherDisplayName`) need to be replaced with the real values from your app's Package/Identity page in [Partner Center](https://partner.microsoft.com/dashboard) — until then, the build fails with an "invalid package identity" error from `makeappx.exe`, which is expected.
+
+Once the identity fields are filled in, build the package either:
+
+- locally: `npm run dist:win:store` (Windows only — needs the Windows SDK's `makeappx.exe`, which electron-builder downloads automatically), or
+- via GitHub Actions: manually run the `.github/workflows/store-build.yml` workflow (`workflow_dispatch`, not run automatically on push/PR/tag).
+
+Either way, take the resulting `.msix`/`.appxupload` from `dist/` and upload it to Partner Center yourself — there's no automated submission pipeline here, since that needs Azure AD API credentials that aren't set up.
+
 ## Continuous integration
 
 `.github/workflows/build.yml` builds all three platforms (Windows, macOS, Linux) on GitHub's own hosted runners — including the macOS build, so releases don't require the maintainer to personally own a Mac. It runs:
@@ -113,6 +124,7 @@ NeonModoro is free, open source, and has no paid tier — so it doesn't carry a 
 - **Pomodoro progress vs. history are different kinds of state**: today's Pomodoro count/4-cycle position (`<userData>/progress.json`) and the full completed-session log (`<userData>/history.json`) both persist across restarts — unlike the live 25:00 countdown itself, which always starts fresh on launch. Progress resets automatically at the start of a new calendar day; history is kept indefinitely (soft-capped at 5,000 entries as a sanity backstop, not a real retention policy).
 - **The title persists across sessions**: unlike a typical "task for this Pomodoro" prompt, the title is never cleared automatically (not on Stop, not when a Pomodoro completes) — it behaves like an actual title, staying until you type a new one. It becomes editable again only once the clock is back at a fresh, unstarted 25:00. This matches a common real pattern (several Pomodoros in a row on the same task) better than re-prompting every time.
 - **Untitled sessions log as "Untitled dd/mm/yyyy" in History, not a generic placeholder** — but only as a display choice in `popup.js`; `history.json` still stores `taskLabel: null` for those entries, so the formatted string is never itself treated as a real, storable task name.
+- **The Microsoft Store (`appx`) target is intentionally not listed in `build.win.target`**, even though it has its own `build.appx` config block. Adding it there was tried first, since it's the most obvious way to wire up a second Windows target — but electron-builder builds *every* configured target for the host platform by default, so it made the plain `npm run dist` (and any bare `electron-builder --win` invocation) attempt an `appx` build too, which fails hard on the unfilled `PLACEHOLDER_*` identity fields before the NSIS installer even gets produced. Leaving `build.appx` configured but out of `win.target`, and reaching it only via the explicit `dist:win:store` script (`electron-builder --win appx`, which fully overrides the target list for that invocation), keeps `dist`/`dist:win` exactly as fast and reliable as before while still making the Store build available on demand.
 
 ## Project structure
 

@@ -1,0 +1,37 @@
+name: Microsoft Store build
+
+# Manual only: unlike build.yml, this never runs on push/PR/tag. The appx
+# identity fields in package.json's build.appx block are placeholders until
+# someone fills them in from Partner Center, so an automatic trigger would
+# just fail on every push. Run this from the Actions tab once those fields
+# are set, then grab the .msix/.appxupload from the run's artifacts and
+# upload it to Partner Center by hand — there's no automated submission
+# step here, since that needs Azure AD API credentials that aren't set up.
+on:
+  workflow_dispatch:
+
+jobs:
+  build-store:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Store package
+        run: npm run dist:win:store -- --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neonmodoro-store
+          path: |
+            dist/*.appx
+            dist/*.msix
+            dist/*.appxupload
+          if-no-files-found: error
