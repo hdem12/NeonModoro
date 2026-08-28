@@ -5,9 +5,9 @@
 
 A frameless, transparent, always-on-top neon Pomodoro timer for Windows, macOS, and Linux. Just the glowing `MM:SS` digits float on your desktop, no window chrome, no background box. Drag it anywhere, resize from a corner, hover for playback controls.
 
-## Download
+### [⬇ Download for Windows](https://github.com/hdem12/NeonModoro/releases/latest) &nbsp;|&nbsp; [⬇ Download for macOS](https://github.com/hdem12/NeonModoro/releases/latest) &nbsp;|&nbsp; [⬇ Download for Linux](https://github.com/hdem12/NeonModoro/releases/latest)
 
-Get the latest build for your platform from the [Releases page](https://github.com/hdem12/NeonModoro/releases/latest):
+All installers are on the [latest release](https://github.com/hdem12/NeonModoro/releases/latest):
 
 - **Windows**: the `.exe` installer
 - **macOS**: the `.dmg` (Apple Silicon and Intel builds are separate downloads)
