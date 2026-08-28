@@ -65,9 +65,9 @@
     },
     "appx": {
       "applicationId": "NeonModoro",
-      "identityName": "PLACEHOLDER_IDENTITY_NAME",
-      "publisher": "PLACEHOLDER_PUBLISHER_ID",
-      "publisherDisplayName": "PLACEHOLDER_PUBLISHER_DISPLAY_NAME",
+      "identityName": "NovoSol.NeonModoro",
+      "publisher": "CN=457E2ECA-D91A-4D00-8132-A57C01D4CCEE",
+      "publisherDisplayName": "NovoSol",
       "displayName": "NeonModoro",
       "backgroundColor": "transparent"
     },
