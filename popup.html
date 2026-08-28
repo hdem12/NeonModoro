@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<title>NeonModoro</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body class="popup-body">
+
+  <div class="modal-box popup-box" id="popup-box">
+
+    <button id="popup-close-x" class="popup-close-x" title="Close" aria-label="Close">
+      <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></svg>
+    </button>
+
+    <div id="panel-session-end" class="popup-panel hidden">
+      <p id="session-end-message" class="modal-message">Pomodoro finished! Time for a 5 minute break.</p>
+      <p id="session-end-question" class="modal-question">Start the 5 minute break now?</p>
+      <div class="modal-actions">
+        <button id="btn-not-now" class="modal-btn">Not now</button>
+        <button id="btn-yes" class="modal-btn primary">Yes</button>
+      </div>
+    </div>
+
+    <div id="panel-info" class="popup-panel hidden">
+      <h2 id="info-title" class="info-title"></h2>
+      <div id="info-body" class="info-body"></div>
+      <div class="modal-actions">
+        <button id="btn-info-close" class="modal-btn primary">Close</button>
+      </div>
+    </div>
+
+    <div id="panel-settings" class="popup-panel hidden">
+      <h2 class="info-title">Settings</h2>
+
+      <div class="settings-row">
+        <label for="setting-color">Digit color (work session)</label>
+        <input type="color" id="setting-color" />
+      </div>
+
+      <div class="settings-row settings-row-checkbox">
+        <label for="setting-alarm-enabled">
+          <input type="checkbox" id="setting-alarm-enabled" />
+          Alert me when
+        </label>
+        <input type="number" id="setting-alarm-minutes" min="1" max="24" step="1" />
+        <span>minutes remain</span>
+      </div>
+
+      <div class="settings-row">
+        <label for="setting-long-break-minutes">Long break length</label>
+        <input type="number" id="setting-long-break-minutes" min="15" max="30" step="1" />
+        <span>min</span>
+      </div>
+
+      <div class="settings-row settings-row-checkbox">
+        <label for="setting-strict-mode">
+          <input type="checkbox" id="setting-strict-mode" />
+          Strict mode (no pause; Stop voids the Pomodoro)
+        </label>
+      </div>
+
+      <div class="settings-row settings-row-checkbox">
+        <label for="setting-hide-title">
+          <input type="checkbox" id="setting-hide-title" />
+          Hide title
+        </label>
+      </div>
+
+      <div class="settings-row settings-row-checkbox">
+        <label for="setting-hide-count">
+          <input type="checkbox" id="setting-hide-count" />
+          Hide Pomodoro count
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-settings-reset" class="modal-btn">Reset</button>
+        <button id="btn-settings-close" class="modal-btn primary">Done</button>
+      </div>
+    </div>
+
+    <div id="panel-history" class="popup-panel hidden">
+      <h2 class="info-title">History</h2>
+      <div id="history-summary" class="history-summary"></div>
+      <div id="history-list" class="history-list"></div>
+      <div class="modal-actions">
+        <button id="btn-history-close" class="modal-btn primary">Close</button>
+      </div>
+    </div>
+
+  </div>
+
+<script src="popup.js"></script>
+</body>
+</html>

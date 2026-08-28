@@ -1,0 +1,77 @@
+{
+  "name": "neonmodoro",
+  "version": "1.0.0",
+  "description": "NeonModoro - a frameless, transparent, always-on-top neon Pomodoro timer for Windows, macOS, and Linux.",
+  "main": "main.js",
+  "author": "NeonModoro",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.neonmodoro.app",
+    "productName": "NeonModoro",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "popup-preload.js",
+      "index.html",
+      "popup.html",
+      "style.css",
+      "renderer.js",
+      "popup.js",
+      "fonts/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NeonModoro"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.productivity"
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "icon": "assets/icons",
+      "category": "Utility",
+      "maintainer": "NeonModoro"
+    }
+  }
+}

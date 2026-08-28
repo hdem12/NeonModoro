@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'" />
+<title>NeonModoro</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="work">
+
+    <div id="clock-container">
+
+      <!-- resize handles (positioned at the four corners) -->
+      <div class="resize-handle rh-tl" data-corner="tl"></div>
+      <div class="resize-handle rh-tr" data-corner="tr"></div>
+      <div class="resize-handle rh-bl" data-corner="bl"></div>
+      <div class="resize-handle rh-br" data-corner="br"></div>
+
+      <div class="top-bar">
+        <button id="btn-close" class="close-btn no-drag" title="Quit" aria-label="Quit">
+          <svg viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></svg>
+        </button>
+      </div>
+
+      <div id="alarm-toast" class="alarm-toast hidden no-drag"></div>
+
+      <div class="digits-wrap">
+        <div id="title-bar" class="title-bar">
+          <input type="text" id="title-input" class="no-drag" placeholder="Add a title (optional)" maxlength="80" autocomplete="off" />
+        </div>
+        <div class="digits-stack">
+          <div class="digits ghost" aria-hidden="true">88:88</div>
+          <div class="digits value" id="time-display">
+            <span id="minutes">25</span><span id="colon" class="colon">:</span><span id="seconds">00</span>
+          </div>
+        </div>
+        <div id="pomodoro-count" class="pomodoro-count no-drag" title="0 completed today">
+          <svg class="pomodoro-count-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+          </svg>
+          <span id="pomodoro-count-text">Pomodoro 0/4</span>
+        </div>
+      </div>
+
+      <div id="estimate-panel" class="estimate-panel">
+        <input type="number" id="task-estimate-input" class="no-drag" min="1" max="99" step="1" value="1" title="Estimated Pomodoros" />
+        <span class="estimate-label">pomodoros</span>
+      </div>
+
+      <div id="controls" class="controls">
+        <button id="btn-play" class="ctrl-btn no-drag" title="Play" aria-label="Play">
+          <svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20" /></svg>
+        </button>
+        <button id="btn-pause" class="ctrl-btn no-drag" title="Pause" aria-label="Pause">
+          <svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" /><rect x="14" y="4" width="5" height="16" /></svg>
+        </button>
+        <button id="btn-stop" class="ctrl-btn no-drag" title="Stop" aria-label="Stop">
+          <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" /></svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+<script src="renderer.js"></script>
+</body>
+</html>

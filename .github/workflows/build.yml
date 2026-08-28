@@ -1,0 +1,64 @@
+name: Build
+
+# Tagging a release (v1.2.3, v2.0.0-beta.1, ...) builds all three platform
+# packages automatically, so the maintainer never needs personal access to a
+# Mac to ship a macOS build. Also runs on PRs against main as a build-health
+# check, so a change that breaks packaging on a platform the maintainer isn't
+# actively developing on (most days, that's not Windows) fails visibly before
+# merge instead of silently at the next tag.
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+          - os: macos-latest
+            script: dist:mac
+          - os: ubuntu-latest
+            script: dist:linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Ubuntu GitHub runners (24.04+) no longer ship libfuse2, which the
+      # AppImage tooling electron-builder downloads at build time needs to
+      # actually produce the .AppImage. Harmless no-op on older runners that
+      # already have it.
+      - name: Install libfuse2 (AppImage build dependency)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run ${{ matrix.script }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neonmodoro-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error

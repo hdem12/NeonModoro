@@ -1,0 +1,740 @@
+@font-face {
+  font-family: 'DSEG7Classic';
+  src: url('fonts/DSEG7Classic-Bold.woff2') format('woff2'),
+       url('fonts/DSEG7Classic-Bold.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+  --accent-work: #bfefff;
+  --accent-work-glow: #8fe0ff;
+  --accent-break: #4dff4d;
+  --accent-break-glow: #22ff22;
+  --ghost-opacity: 0.07;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+#app {
+  --accent: var(--accent-work);
+  --accent-glow: var(--accent-work-glow);
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: transparent;
+}
+
+#app.break {
+  --accent: var(--accent-break);
+  --accent-glow: var(--accent-break-glow);
+}
+
+#clock-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  cursor: grab;
+}
+
+#clock-container.dragging {
+  cursor: grabbing;
+}
+
+.digits-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.digits-stack {
+  position: relative;
+}
+
+/* Sits directly above the digits, like a title — always in place (not hover-gated),
+   transparent at rest, with a hairline underline only while actively focused so it
+   still reads as editable without ever needing a background box. */
+.title-bar {
+  pointer-events: auto;
+  max-width: 88%;
+  margin-bottom: 1.4vw;
+}
+
+.title-bar.empty-and-locked {
+  display: none;
+}
+
+#app.break .title-bar,
+#app.title-hidden .title-bar {
+  display: none;
+}
+
+#title-input {
+  display: block;
+  width: 100%;
+  min-width: 3em;
+  max-width: 100%;
+  box-sizing: content-box;
+  text-align: center;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  outline: none;
+  color: rgba(235, 245, 250, 0.9);
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 4.6vw;
+  font-weight: 500;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.75);
+  padding: 0.1em 0.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: border-color 150ms ease;
+}
+
+#title-input::placeholder {
+  color: rgba(235, 245, 250, 0.35);
+  font-weight: 400;
+}
+
+#title-input:focus {
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+#title-input:disabled {
+  opacity: 0.85;
+  cursor: default;
+}
+
+.digits {
+  font-family: 'DSEG7Classic', monospace;
+  font-size: 26vw;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.digits.ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--accent);
+  opacity: var(--ghost-opacity);
+}
+
+.digits.value {
+  position: relative;
+  color: var(--accent);
+  text-shadow:
+    0 0 0.02em var(--accent),
+    0 0 0.06em var(--accent-glow);
+  transition: color 400ms ease, text-shadow 400ms ease;
+}
+
+.colon {
+  transition: opacity 100ms linear;
+}
+
+.colon.dim {
+  opacity: 0;
+}
+
+/* --- hover controls -------------------------------------------------- */
+
+.controls {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.8em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 5;
+}
+
+#clock-container:hover .controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#app.modal-open .controls {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.ctrl-btn {
+  width: 2.2em;
+  height: 2.2em;
+  font-size: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  background: rgba(15, 17, 20, 0.65);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.ctrl-btn:hover {
+  background: rgba(35, 38, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.ctrl-btn svg {
+  width: 46%;
+  height: 46%;
+  fill: #ffffff;
+}
+
+.ctrl-btn.hidden {
+  display: none;
+}
+
+/* --- resize handles ---------------------------------------------------- */
+
+.resize-handle {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  z-index: 10;
+  background: transparent;
+}
+
+.rh-tl { top: 0; left: 0; cursor: nwse-resize; }
+.rh-tr { top: 0; right: 0; cursor: nesw-resize; }
+.rh-bl { bottom: 0; left: 0; cursor: nesw-resize; }
+.rh-br { bottom: 0; right: 0; cursor: nwse-resize; }
+
+/* --- top-right close (X) button ------------------------------------------ */
+
+.top-bar {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 6;
+}
+
+#clock-container:hover .top-bar {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#app.modal-open .top-bar {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.close-btn {
+  width: 1.8em;
+  height: 1.8em;
+  font-size: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  background: rgba(15, 17, 20, 0.65);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+
+.close-btn:hover {
+  background: rgba(180, 30, 30, 0.75);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.close-btn svg {
+  width: 42%;
+  height: 42%;
+}
+
+.close-btn svg line {
+  stroke: #ffffff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+/* --- Pomodoro count (beneath the digits) -----------------------------------------
+   Deliberately always visible (not hover-gated) — unlike the playback controls,
+   this is meant to be glanceable at rest. Previously a 4-dot row tucked into a
+   hover-only top-left corner (too easy to miss), then a dot row directly under the
+   digits — which, combined with the title above, was taller than the window at its
+   default size and rendered visibly clipped. Fixed at the root by widening the
+   window's aspect ratio (see ASPECT_RATIO in main.js) rather than shrinking this
+   again, and redesigned as a single icon + text line, no background pill, matching
+   the transparent/no-boxes look the title above the digits already uses. Hide via
+   #app.count-hidden (Settings -> "Hide Pomodoro count"). */
+
+.pomodoro-count {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.6vw;
+  color: rgba(230, 240, 245, 0.8);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+#app.count-hidden .pomodoro-count {
+  display: none;
+}
+
+.pomodoro-count-icon {
+  width: 3vw;
+  height: 3vw;
+  min-width: 9px;
+  min-height: 9px;
+  flex-shrink: 0;
+}
+
+.pomodoro-count-icon circle {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 3px var(--accent));
+}
+
+#pomodoro-count-text {
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 3vw;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* --- Pomodoro estimate (before a work session starts) --------------------------- */
+
+.estimate-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 17%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 5;
+}
+
+#clock-container:hover .estimate-panel {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#app.modal-open .estimate-panel,
+#app.task-in-progress .estimate-panel,
+#app.break .estimate-panel {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#task-estimate-input {
+  width: 3.2em;
+  font-size: 11px;
+  background: rgba(15, 17, 20, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  color: #f2f6f8;
+  padding: 0.3em 0.3em;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+
+#task-estimate-input:focus {
+  outline: none;
+  border-color: var(--accent-work);
+}
+
+.estimate-label {
+  font-size: 10px;
+  color: rgba(230, 240, 245, 0.55);
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+
+/* --- alarm toast ------------------------------------------------------------ */
+
+.alarm-toast {
+  position: absolute;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 17, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #f2f6f8;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 11px;
+  padding: 0.35em 0.9em;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  z-index: 7;
+  white-space: nowrap;
+}
+
+.alarm-toast.show {
+  opacity: 1;
+}
+
+.alarm-toast.hidden {
+  display: none;
+}
+
+@keyframes digit-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.6); }
+}
+
+.digits.value.pulse {
+  animation: digit-pulse 500ms ease-in-out 2;
+}
+
+/* --- modal --------------------------------------------------------------- */
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: rgba(20, 24, 28, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 1.1em 1.4em;
+  max-width: 80%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-message,
+.modal-question {
+  color: #f2f6f8;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 13px;
+  margin: 0.3em 0;
+}
+
+.modal-question {
+  color: #c9d3d8;
+}
+
+.modal-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.6em;
+  justify-content: center;
+  margin-top: 0.8em;
+}
+
+.modal-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f2f6f8;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  padding: 0.4em 1em;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.modal-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.modal-btn.primary {
+  background: rgba(77, 255, 77, 0.22);
+  border-color: rgba(77, 255, 77, 0.5);
+}
+
+.modal-btn.primary:hover {
+  background: rgba(77, 255, 77, 0.36);
+}
+
+/* --- info popups (About Pomodoro / About NeonModoro) --------------------------- */
+
+.info-title {
+  flex-shrink: 0;
+  color: #f2f6f8;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 15px;
+  margin: 0 0 0.6em 0;
+  text-align: center;
+}
+
+/* Scrolls internally instead of letting the popup box grow taller than the
+   (fixed-size) window — previously long body text pushed the title and Close
+   button outside the visible window entirely, since the box was just centered
+   and clipped by the OS window edge with no way to reach the rest. */
+.info-body {
+  color: #d7e0e4;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.info-body::-webkit-scrollbar,
+.history-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.info-body::-webkit-scrollbar-track,
+.history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.info-body::-webkit-scrollbar-thumb,
+.history-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+}
+
+.info-body::-webkit-scrollbar-thumb:hover,
+.history-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.info-body p {
+  margin: 0 0 0.7em 0;
+}
+
+.info-body ol,
+.info-body ul {
+  margin: 0 0 0.7em 0;
+  padding-left: 1.2em;
+}
+
+.info-body li {
+  margin-bottom: 0.25em;
+}
+
+.info-body a {
+  color: #8fe0ff;
+}
+
+/* --- settings popup ----------------------------------------------------------- */
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  color: #d7e0e4;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  margin-bottom: 0.85em;
+}
+
+.settings-row label {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  cursor: pointer;
+}
+
+.settings-row-checkbox {
+  flex-wrap: wrap;
+}
+
+#setting-color {
+  width: 2.4em;
+  height: 1.6em;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+#setting-alarm-minutes,
+#setting-long-break-minutes {
+  width: 3.4em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  color: #f2f6f8;
+  font-size: 12px;
+  padding: 0.2em 0.4em;
+}
+
+/* --- History popup --------------------------------------------------------------- */
+
+.history-summary {
+  text-align: left;
+  margin-bottom: 0.6em;
+}
+
+.history-summary-title {
+  color: #f2f6f8;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  margin: 0 0 0.3em 0;
+}
+
+.history-summary-row {
+  color: #b9e8c9;
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 11px;
+  margin-bottom: 0.15em;
+}
+
+.history-list {
+  text-align: left;
+  max-height: 220px;
+  overflow-y: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.4em;
+}
+
+.history-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  padding: 0.3em 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 11px;
+}
+
+.history-time {
+  color: rgba(215, 224, 228, 0.55);
+  flex-shrink: 0;
+}
+
+.history-label {
+  color: #d7e0e4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.history-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  color: #22ff22;
+  border: 1px solid rgba(77, 255, 77, 0.5);
+  border-radius: 8px;
+  padding: 0.05em 0.5em;
+}
+
+.history-empty {
+  color: rgba(215, 224, 228, 0.6);
+  font-family: -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+/* --- popup windows (popup.html) --------------------------------------------------
+   Independent, fixed-size top-level windows (see main.js POPUP_SIZES) — sized by
+   the OS window itself, not by the clock window, so they stay fully legible no
+   matter how small the clock currently is. */
+
+.popup-body {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.popup-box {
+  position: relative;
+  width: calc(100% - 16px);
+  max-width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  max-height: calc(100% - 16px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Each panel fills the box and lays out top-to-bottom; only the middle content
+   (.info-body, currently — the only content long enough to ever overflow) is
+   flexible/scrollable, so a title and action buttons never get pushed outside
+   the fixed-size popup window regardless of how much text a panel holds. */
+.popup-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* no-op for panels with a flex-growing child (.info-body) */
+  min-height: 0;
+  height: 100%;
+}
+
+.popup-panel.hidden {
+  display: none;
+}
+
+.popup-close-x {
+  position: absolute;
+  top: -0.3em;
+  right: -0.5em;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 150ms ease;
+}
+
+.popup-close-x:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.popup-close-x svg {
+  width: 60%;
+  height: 60%;
+}
+
+.popup-close-x svg line {
+  stroke: #cfd8dc;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
