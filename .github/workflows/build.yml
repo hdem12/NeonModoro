@@ -71,3 +71,17 @@ jobs:
             app/dist/*.AppImage
             app/dist/*.deb
           if-no-files-found: error
+
+  release-notes:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write release notes with direct download links
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: python3 .github/scripts/write_release_notes.py
