@@ -113,7 +113,8 @@
     "publish": {
       "provider": "github",
       "owner": "hdem12",
-      "repo": "NeonModoro"
+      "repo": "NeonModoro",
+      "releaseType": "release"
     }
   }
 }
