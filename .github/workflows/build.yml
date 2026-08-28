@@ -2,10 +2,11 @@ name: Build
 
 # Tagging a release (v1.2.3, v2.0.0-beta.1, ...) builds all three platform
 # packages automatically, so the maintainer never needs personal access to a
-# Mac to ship a macOS build. Also runs on PRs against main as a build-health
-# check, so a change that breaks packaging on a platform the maintainer isn't
-# actively developing on (most days, that's not Windows) fails visibly before
-# merge instead of silently at the next tag.
+# Mac to ship a macOS build, and publishes them to a GitHub Release. Also
+# runs on PRs against main as a build-health check, so a change that breaks
+# packaging on a platform the maintainer isn't actively developing on
+# (most days, that's not Windows) fails visibly before merge instead of
+# silently at the next tag.
 on:
   push:
     tags:
@@ -13,6 +14,9 @@ on:
   pull_request:
     branches:
       - main
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -28,6 +32,9 @@ jobs:
             script: dist:linux
 
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: app
 
     steps:
       - uses: actions/checkout@v4
@@ -50,15 +57,17 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run ${{ matrix.script }} -- --publish never
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run ${{ matrix.script }} -- --publish ${{ startsWith(github.ref, 'refs/tags/v') && 'always' || 'never' }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: neonmodoro-${{ matrix.os }}
           path: |
-            dist/*.exe
-            dist/*.dmg
-            dist/*.zip
-            dist/*.AppImage
-            dist/*.deb
+            app/dist/*.exe
+            app/dist/*.dmg
+            app/dist/*.zip
+            app/dist/*.AppImage
+            app/dist/*.deb
           if-no-files-found: error

@@ -2,6 +2,10 @@
   "name": "neonmodoro",
   "version": "1.0.0",
   "description": "NeonModoro - a frameless, transparent, always-on-top neon Pomodoro timer for Windows, macOS, and Linux.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hdem12/NeonModoro.git"
+  },
   "main": "main.js",
   "author": "NeonModoro",
   "license": "MIT",
@@ -44,7 +48,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "assets/icon.ico"
@@ -67,20 +73,47 @@
     },
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["x64", "arm64"] },
-        { "target": "zip", "arch": ["x64", "arm64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "assets/icon.icns",
       "category": "public.app-category.productivity"
     },
     "linux": {
       "target": [
-        { "target": "AppImage", "arch": ["x64"] },
-        { "target": "deb", "arch": ["x64"] }
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "assets/icons",
       "category": "Utility",
       "maintainer": "NeonModoro"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hdem12",
+      "repo": "NeonModoro"
     }
   }
 }

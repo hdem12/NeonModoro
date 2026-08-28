@@ -5,7 +5,7 @@ const fs = require('fs');
 const ALLOWED_EXTERNAL_HOSTS = ['en.wikipedia.org'];
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 const MAX_LABEL_LENGTH = 80;
-const MAX_HISTORY_ENTRIES = 5000; // generous soft cap — see journal.md v6 for reasoning
+const MAX_HISTORY_ENTRIES = 5000; // generous soft cap, not a real retention policy
 
 function isFiniteNumber(n) {
   return typeof n === 'number' && Number.isFinite(n);
@@ -190,7 +190,7 @@ function broadcastSettings() {
 
 // Progress (today's Pomodoro count / cycle position) persists across restarts —
 // unlike the live countdown, which always starts fresh — but only for the current
-// calendar day, matching Cirillo's day-scoped "Records" rhythm. See journal.md v6.
+// calendar day, matching Cirillo's day-scoped "Records" rhythm.
 function loadProgress() {
   try {
     const raw = fs.readFileSync(userDataFile('progress.json'), 'utf8');

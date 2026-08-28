@@ -13,6 +13,9 @@ on:
 jobs:
   build-store:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: app
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +34,7 @@ jobs:
         with:
           name: neonmodoro-store
           path: |
-            dist/*.appx
-            dist/*.msix
-            dist/*.appxupload
+            app/dist/*.appx
+            app/dist/*.msix
+            app/dist/*.appxupload
           if-no-files-found: error
