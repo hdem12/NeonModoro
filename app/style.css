@@ -223,7 +223,20 @@ html, body {
   width: 16px;
   height: 16px;
   z-index: 10;
-  background: transparent;
+  /* Not literal `transparent` (alpha 0): Electron/Chromium's transparent-window
+     support on Windows can fall back from GPU/DirectComposition compositing to a
+     classic per-pixel-alpha layered window (happens silently, no error, no crash,
+     on some GPU/driver combos, remote desktop sessions, and VMs). That fallback
+     path makes the OS itself treat zero-alpha pixels as mouse-click-through, so an
+     empty `background: transparent` box like this one silently swallows every
+     click/drag meant for it, reproduced by launching the packaged app with
+     `--disable-gpu`: dragging a corner did nothing at all, while nearby buttons
+     with a real background kept working. 0.004 (~1/255, the smallest alpha that
+     doesn't quantize back to fully-transparent in an 8-bit framebuffer) keeps the
+     hit zone real either way; a more visible value like 0.01 fixed the hit-testing
+     the same way but drew a faint square at each corner, outside the clock's own
+     rounded-rect bezel. */
+  background: rgba(0, 0, 0, 0.004);
 }
 
 .rh-tl { top: 0; left: 0; cursor: nwse-resize; }
@@ -715,7 +728,11 @@ html, body {
   width: 22px;
   height: 22px;
   border: none;
-  background: transparent;
+  /* Not literal `transparent`, see the .resize-handle comment above. The X glyph
+     itself is opaque SVG stroke either way, but the padding around it inside this
+     22x22 circle isn't, and that padding is what a slightly-off click most often
+     lands on. */
+  background: rgba(0, 0, 0, 0.004);
   border-radius: 50%;
   cursor: pointer;
   display: flex;

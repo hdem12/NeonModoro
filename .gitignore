@@ -3,3 +3,6 @@ app/dist/
 *.tgz
 dev-screenshot*.png
 .claude/
+
+# Internal dev journal: kept locally on purpose, never committed or shipped.
+journal.md

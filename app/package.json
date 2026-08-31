@@ -1,6 +1,6 @@
 {
   "name": "neonmodoro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NeonModoro - a frameless, transparent, always-on-top neon Pomodoro timer for Windows, macOS, and Linux.",
   "repository": {
     "type": "git",
